@@ -86,10 +86,10 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 		trigraphCalc = (numberConversion[(i * 3)] * 26 * 26) + (numberConversion[((i * 3) + 1)] * 26) + numberConversion[((i * 3) + 2)];
 		mpz_set_ui(mpzTrigraphs[i], trigraphCalc);
 		//For testing trigraph generation: passed
-		//cout << trigraphs[i] << " ";
+		cout << trigraphCalc << " ";
 	}
 	//For testing trigraph generation: passed
-	//cout << endl;
+	cout << endl;
 
 	//int eTrigraphs[trigraphCount];//Encrypted trigraph array
 	mpz_t mpzETrigraphs[trigraphCount];
@@ -98,12 +98,6 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 	{
 		//Encipher each plaintext trigraph code using C = M^e mod n
 		//eTrigraphs[i] = (int)(pow(trigraphs[i], e) + 0.5) % n;
-		//mpz_pow_ui(mpzTrigraphs[i], mpzTrigraphs[i], mpz_get_ui(mpzE));
-		//mpz_add_ui(mpzTrigraphs[i], mpzTrigraphs[i], 0.5);
-		//mpz_mod(mpzTrigraphs[i], mpzTrigraphs[i], mpzN);
-		
-		//mpz_init(mpzETrigraphs[i]);
-		//mpz_set(mpzETrigraphs[i], mpzTrigraphs[i]);
 		
 		mpz_init(mpzETrigraphs[i]);
 		mpz_powm(mpzETrigraphs[i], mpzTrigraphs[i], mpzE, mpzN);
@@ -130,7 +124,7 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 		mpz_init(mpzFirstQuotient);
 		mpz_init(mpzFirstRemainder);
 		
-		mpz_tdiv_qr_ui(mpzFirstQuotient, mpzFirstRemainder, mpzETrigraphs[i], (int)pow(26, 3));
+		mpz_tdiv_qr_ui(mpzFirstQuotient, mpzFirstRemainder, mpzETrigraphs[i], 26 * 26 * 26);
 		
 		
 		mpz_t mpzSecondQuotient;
@@ -138,7 +132,7 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 		mpz_init(mpzSecondQuotient);
 		mpz_init(mpzSecondRemainder);
 		
-		mpz_tdiv_qr_ui(mpzSecondQuotient, mpzSecondRemainder, mpzFirstRemainder, (int)pow(26, 2));
+		mpz_tdiv_qr_ui(mpzSecondQuotient, mpzSecondRemainder, mpzFirstRemainder, 26 * 26);
 		
 		//int secondQuotient = firstRemainder / ((int)(pow(26,2) + 0.5));
 		//int secondRemainder = firstRemainder / ((int)(pow(26,2) + 0.5));
@@ -152,26 +146,19 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 		//int thirdQuotient = secondRemainder / 26;
 		//int thirdRemainder = secondRemainder % 26;
 		
-		mpz_set(mpzQuadragraphList[0], mpzFirstQuotient);
-		mpz_set(mpzQuadragraphList[1], mpzSecondQuotient);
-		mpz_set(mpzQuadragraphList[2], mpzThirdQuotient);
-		mpz_set(mpzQuadragraphList[3], mpzThirdRemainder);
-		
-		
-		//quadragraphList[0] = mpz_get_ui(mpzFirstQuotient);
-		//quadragraphList[2] = mpz_get_ui(mpzSecondQuotient);
-		//quadragraphList[3] = mpz_get_ui(mpzThirdQuotient);
-		//quadragraphList[4] = mpz_get_ui(mpzThirdRemainder);
+		mpz_mod_ui(mpzQuadragraphList[0], mpzFirstQuotient, 26);
+		mpz_mod_ui(mpzQuadragraphList[1], mpzSecondQuotient, 26);
+		mpz_mod_ui(mpzQuadragraphList[2], mpzThirdQuotient, 26);
+		mpz_mod_ui(mpzQuadragraphList[3], mpzThirdRemainder, 26);
 		
 		//quadragraphList[0] = firstQuotient;
 		//quadragraphList[1] = secondQuotient;
 		//quadragraphList[2] = thirdQuotient;
 		//quadragraphList[3] = thirdRemainder;
 		
-		
-		//int count = 0;
 		mpz_t mpzQuadEntry;
 		mpz_init(mpzQuadEntry);
+		
 		for (int j = (i * 4); j < (4 + (4 * i)); j++)
 		{
 			mpz_set(mpzQuadEntry, mpzQuadragraphList[j - (4 * i)]);
@@ -287,7 +274,6 @@ void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream
 				encryptString[j] = 'Z';
 			}
 			else{encryptString[j] = ' ';}
-			//count++;
 		}
 	}
 
@@ -307,39 +293,24 @@ void decrypt(mpz_t mpzN, mpz_t mpzD, int numberConversion[], int size, ostream& 
 	//Interpret each quadragraph as a number in base 26
 	for (int i = 0; i < quadragraphCount; i++)
 	{
-		quadragraphs[i] = ( numberConversion[ (i*3) ] * 26 * 26 * 26) + ( numberConversion[ ((i*3)+1) ] * 26 * 26) + ( numberConversion[ ((i*3)+2) ] * 26 ) + numberConversion[ ((i*3)+3) ];
+		quadragraphs[i] = ( numberConversion[ (i*4) ] * 26 * 26 * 26) + ( numberConversion[ ((i*4)+1) ] * 26 * 26) + ( numberConversion[ ((i*4)+2) ] * 26 ) + numberConversion[ ((i*4)+3) ];
 		//Test for quadragraph generation: passed
-		//cout << quadragraphs[i] << " ";
+		cout << quadragraphs[i] << " ";
 	}
 	//Test for quadragraph generation: passed
-	//cout << endl;
+	cout << endl;
 	mpz_t mpzQuadragraphs[quadragraphCount];
 	mpz_t mpzEQuadragraphs[quadragraphCount];
 	//int eQuadragraphs[quadragraphCount];//Encrypted quadragraph array
 	for (int i = 0; i < quadragraphCount; i++)
 	{
-		cout << "loop" << endl;
 		mpz_init(mpzQuadragraphs[i]);
 		mpz_init(mpzEQuadragraphs[i]);
 		
 		mpz_set_ui(mpzQuadragraphs[i], quadragraphs[i]);
-		cout << "here" << endl;
 		
-		//mpz_init(mpzEQuadragraphs[i]);
 		mpz_powm(mpzEQuadragraphs[i], mpzQuadragraphs[i], mpzD, mpzN); 
-		//mpz_pow_ui(mpzQuadragraphs[i], mpzQuadragraphs[i], mpz_get_ui(mpzD));
-		//mpz_add_ui(mpzQuadragraphs[i], mpzQuadragraphs[i], 0.5);
-		//mpz_mod(mpzQuadragraphs[i], mpzQuadragraphs[i], mpzN);
-		
-		cout << "here2" << endl;
-		
-		
-		//mpz_set(mpzEQuadragraphs[i], mpzQuadragraphs[i]);
-		
-		
-		
-		
-		
+	
 		//Encipher each ciphertext quadragraph code using M = C^d mod n
 		//eQuadragraphs[i] = ( (int)(pow(quadragraphs[i], d) + 0.5) % n);
 		//Test for quadragraph encryption: not passed.  Need properly encrypted RSA outfile for testing.
@@ -351,41 +322,36 @@ void decrypt(mpz_t mpzN, mpz_t mpzD, int numberConversion[], int size, ostream& 
 	char encryptString[encryptStringCount];
 	//int trigraphList[3];
 	mpz_t mpzTrigraphList[3];
+	mpz_init(mpzTrigraphList[0]);
+	mpz_init(mpzTrigraphList[1]);
+	mpz_init(mpzTrigraphList[2]);
+	
+	mpz_t mpzFirstQuotient;
+	mpz_t mpzFirstRemainder;
+	mpz_init(mpzFirstQuotient);
+	mpz_init(mpzFirstRemainder);
+	
+	mpz_t mpzSecondQuotient;
+	mpz_t mpzSecondRemainder;
+	mpz_init(mpzSecondQuotient);
+	mpz_init(mpzSecondRemainder);
 
-	for (int i = 0; i < (quadragraphCount); i++)
+	for (int i = 0; i < quadragraphCount; i++)
 	{
-		cout << "here3" << endl;
 		
-		mpz_t mpzFirstQuotient;
-		mpz_t mpzFirstRemainder;
-		mpz_init(mpzFirstQuotient);
-		mpz_init(mpzFirstRemainder);
 		
-		mpz_tdiv_qr_ui(mpzFirstQuotient, mpzFirstRemainder, mpzEQuadragraphs[i], ((int)pow(26, 2) + 0.5));
+		mpz_tdiv_qr_ui(mpzFirstQuotient, mpzFirstRemainder, mpzEQuadragraphs[i], (26 * 26));
 		
 		mpz_out_str(stdout, 10, mpzFirstQuotient);
 		cout << endl;
 		
-		mpz_t mpzSecondQuotient;
-		mpz_t mpzSecondRemainder;
-		mpz_init(mpzSecondQuotient);
-		mpz_init(mpzSecondRemainder);
+		
 		
 		mpz_tdiv_qr_ui(mpzSecondQuotient, mpzSecondRemainder, mpzFirstRemainder, 26);
 		
-		mpz_init(mpzTrigraphList[0]);
-		mpz_init(mpzTrigraphList[1]);
-		mpz_init(mpzTrigraphList[2]);
-		
-		mpz_set(mpzTrigraphList[0], mpzFirstQuotient);
-		mpz_set(mpzTrigraphList[1], mpzSecondQuotient);
-		mpz_set(mpzTrigraphList[2], mpzSecondRemainder);
-		
-		
-		
-		
-		
-		
+		mpz_mod_ui(mpzTrigraphList[0], mpzFirstQuotient, 26);
+		mpz_mod_ui(mpzTrigraphList[1], mpzSecondQuotient, 26);
+		mpz_mod_ui(mpzTrigraphList[2], mpzSecondRemainder, 26);
 		
 		//Represent enciphered message as a 3-digit base-26 number and converting to alphabetic characters
 		//int firstQuotient = eQuadragraphs[i] / ((int)(pow(26,2) + 0.5));
@@ -398,125 +364,125 @@ void decrypt(mpz_t mpzN, mpz_t mpzD, int numberConversion[], int size, ostream& 
 		//trigraphList[1] = secondQuotient;
 		//trigraphList[2] = secondRemainder;
 		
-		int count = 0;
+		mpz_t mpzTriEntry;
+		mpz_init(mpzTriEntry);
 		
-		//mpz_t mpzTriEntry;
-		//mpz_init(mpzTriEntry);
-		
-		for (int j = (i*3); j < encryptStringCount; j++)
+		for (int j = (i*3); j < (3 + (i * 3)); j++)
 		{
-			cout << count << endl;
-			//mpz_set(mpzTriEntry, mpzTrigraphList[count]);
-			int triEntry = mpz_get_ui(mpzTrigraphList[count]);
+			mpz_set(mpzTriEntry, mpzTrigraphList[j - (3 * i)]);
 			
-			if (triEntry == 0)
+			cout << "i = " << i << endl;
+			cout << "j = " << j << endl;
+			cout << "triEntry = ";
+			mpz_out_str(stdout, 10, mpzTriEntry);
+			cout << endl;
+			
+			if (mpz_cmp_ui(mpzTriEntry, 0) == 0)
 			{
 				encryptString[j] = 'A';
 			}
-			else if (triEntry == 1)
+			else if (mpz_cmp_ui(mpzTriEntry, 1) == 0)
 			{
 				encryptString[j] = 'B';
 			}
-			else if (triEntry == 2)
+			else if (mpz_cmp_ui(mpzTriEntry, 2) == 0)
 			{
 				encryptString[j] = 'C';
 			}
-			else if (triEntry == 3)
+			else if (mpz_cmp_ui(mpzTriEntry, 3) == 0)
 			{
 				encryptString[j] = 'D';
 			}
-			else if (triEntry == 4)
+			else if (mpz_cmp_ui(mpzTriEntry, 4) == 0)
 			{
 				encryptString[j] = 'E';
 			}
-			else if (triEntry == 5)
+			else if (mpz_cmp_ui(mpzTriEntry, 5) == 0)
 			{
 				encryptString[j] = 'F';
 			}
-			else if (triEntry == 6)
+			else if (mpz_cmp_ui(mpzTriEntry, 6) == 0)
 			{
 				encryptString[j] = 'G';
 			}
-			else if (triEntry == 7)
+			else if (mpz_cmp_ui(mpzTriEntry, 7) == 0)
 			{
 				encryptString[j] = 'H';
 			}
-			else if (triEntry == 8)
+			else if (mpz_cmp_ui(mpzTriEntry, 8) == 0)
 			{
 				encryptString[j] = 'I';
 			}
-			else if (triEntry == 9)
+			else if (mpz_cmp_ui(mpzTriEntry, 9) == 0)
 			{
 				encryptString[j] = 'J';
 			}
-			else if (triEntry == 10)
+			else if (mpz_cmp_ui(mpzTriEntry, 10) == 0)
 			{
 				encryptString[j] = 'K';
 			}
-			else if (triEntry == 11)
+			else if (mpz_cmp_ui(mpzTriEntry, 11) == 0)
 			{
 				encryptString[j] = 'L';
 			}
-			else if (triEntry == 12)
+			else if (mpz_cmp_ui(mpzTriEntry, 12) == 0)
 			{
 				encryptString[j] = 'M';
 			}
-			else if (triEntry == 13)
+			else if (mpz_cmp_ui(mpzTriEntry, 13) == 0)
 			{
 				encryptString[j] = 'N';
 			}
-			else if (triEntry == 14)
+			else if (mpz_cmp_ui(mpzTriEntry, 14) == 0)
 			{
 				encryptString[j] = 'O';
 			}
-			else if (triEntry == 15)
+			else if (mpz_cmp_ui(mpzTriEntry, 15) == 0)
 			{
 				encryptString[j] = 'P';
 			}
-			else if (triEntry == 16)
+			else if (mpz_cmp_ui(mpzTriEntry, 16) == 0)
 			{
 				encryptString[j] = 'Q';
 			}
-			else if (triEntry == 17)
+			else if (mpz_cmp_ui(mpzTriEntry, 17) == 0)
 			{
 				encryptString[j] = 'R';
 			}
-			else if (triEntry == 18)
+			else if (mpz_cmp_ui(mpzTriEntry, 18) == 0)
 			{
 				encryptString[j] = 'S';
 			}
-			else if (triEntry == 19)
+			else if (mpz_cmp_ui(mpzTriEntry, 19) == 0)
 			{
 				encryptString[j] = 'T';
 			}
-			else if (triEntry == 20)
+			else if (mpz_cmp_ui(mpzTriEntry, 20) == 0)
 			{
 				encryptString[j] = 'U';
 			}
-			else if (triEntry == 21)
+			else if (mpz_cmp_ui(mpzTriEntry, 21) == 0)
 			{
 				encryptString[j] = 'V';
 			}
-			else if (triEntry == 22)
+			else if (mpz_cmp_ui(mpzTriEntry, 22) == 0)
 			{
 				encryptString[j] = 'W';
 			}
-			else if (triEntry == 23)
+			else if (mpz_cmp_ui(mpzTriEntry, 23) == 0)
 			{
 				encryptString[j] = 'X';
 			}
-			else if (triEntry == 24)
+			else if (mpz_cmp_ui(mpzTriEntry, 24) == 0)
 			{
 				encryptString[j] = 'Y';
 			}
-			else if (triEntry == 25)
+			else if (mpz_cmp_ui(mpzTriEntry, 25) == 0)
 			{
 				encryptString[j] = 'Z';
 			}
 			else{encryptString[j] = ' ';}
-			count++;
 		}
-		cout << "here5" << endl;
 	}
 
 	//Print to outfile
@@ -841,6 +807,17 @@ int main ()
 		//cin >> d;
 		
 		decrypt(mpzDecryptN, mpzDecryptD, numberConversion, 40, out_file);
+		out_file.close();
+		string line;
+		ifstream file("second.txt");
+		if (file.is_open())
+		{
+			while (getline(file, line))
+			{
+				cout << line << endl;
+			}
+			file.close();
+		}
 	}
 	else
 	//ERROR
