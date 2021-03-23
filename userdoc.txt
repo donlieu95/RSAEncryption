@@ -1,0 +1,14 @@
+USER DOCUMENT
+
+This program is designed to demonstrate the RSA method of encryption and decryption. The program takes an input file from the user that provides data and prints the results of the encryption or decryption process to a user’s output file.
+
+The program’s name is Project1GMPEDITION.cpp (or change it to whatever it may be if the name is different) 
+
+The file pathname is _____________________
+
+To compile and link it, simply enter the following on the CENTOS system:
+
+g++ Project1GMPEDITION.cpp
+./a.out
+
+First the program will prompt you to enter in a filename to be used for the output file. Then it will ask you to enter a filename that contains data for the input file. The next prompt will ask you if you would like to encrypt or decrypt, enter the number 1 to encrypt or the number 2 to decrypt. You will then be asked how many times to run the Miller Test (for best results select a number between 2 and 10). The results will then be printed to the given output file.
