@@ -20,7 +20,7 @@
 
 using namespace std;
 //For random selection of p and q
-const int max_num = 100000, min_num = 100;
+const int max_num = 311, min_num = 137;
 
 bool isPrime(int n, int k)
 //Test for primality using Miller-Rabin method.
@@ -60,19 +60,58 @@ bool isPrime(int n, int k)
 	}
 }
 
-//void encrypt(int p, int q, int e, int d, int numberConversion[], int size, ostream& outfile)
-void encrypt(int p, int q, mpz_t mpzE, int numberConversion[], int size, ostream& outfile)
+/*mpz_t generatePrime()
 {
-	int trigraphCount = floor(size/3), totient = (p-1)*(q-1), trigraphCalc;
-	mpz_t mpzN;
-	mpz_t mpzP;
-	mpz_t mpzQ;
-	mpz_init(mpzN);
-	mpz_init(mpzP);
-	mpz_init(mpzQ);
+	// initialize variables
+	mpz_t l, rand;
+	//unsigned long seed;
+	//seed = time(NULL);
+	// perform inits to create variable pointers with 0 values
+	mpz_init(rand);
+	mpz_init(l);
 	
-	mpz_set_ui(mpzP, p);
-	mpz_set_ui(mpzQ, q);
+	// calculate random number floor (at least 100 digits long)
+	mpz_ui_pow_ui(l, 10, 100);
+	// initialize the random number seed
+	gmp_randstate_t rstate;
+	// initialize state for a Mersenne Twister algorithm
+	gmp_randinit_mt(rstate);
+	// create the generatero seed for random number engine
+	gmp_randseed_ui(rstate, seed);
+	
+	do {
+		// generate number between 0 and 2^340 (~10^103 in base 2)
+		mpz_urandomb(rand, rstate, 340);
+		// add base to generated number, should now be between 10^100 and 2*10^100
+		mpz_add(rand, rand, l);
+	
+	} while ((mpz_probab_prime_p(rand, 25)) == 0);
+	
+	// output number after a prime is generated
+	//mpz_out_str(stdout,10,rand);
+	//cout << endl;
+
+	return rand;
+	
+	// cleanup ops
+	gmp_randclear(rstate);
+	mpz_clear(l);
+	mpz_clear(rand);
+}*/
+
+//void encrypt(int p, int q, int e, int d, int numberConversion[], int size, ostream& outfile)
+void encrypt(mpz_t mpzP, mpz_t mpzQ, mpz_t mpzE, int numberConversion[], int size, ostream& outfile)
+{
+	int trigraphCount = floor(size/3), totient, trigraphCalc;
+	mpz_t mpzN;
+	//mpz_t mpzP;
+	//mpz_t mpzQ;
+	mpz_init(mpzN);
+	//mpz_init(mpzP);
+	//mpz_init(mpzQ);
+	
+	//mpz_set_ui(mpzP, p);
+	//mpz_set_ui(mpzQ, q);
 	
 	mpz_mul(mpzN, mpzP, mpzQ);
 	//int trigraphs[trigraphCount];//Trigraph array
@@ -660,9 +699,9 @@ int main ()
 	if (choice == 1)
 	//ENCRYPT
 	{
-		cout << "How many times do you wish to run the Miller test? (Larger number will be more accurate, but will take longer.  For best results, select a number between 2 and 10.)" << endl;
+		/*cout << "How many times do you wish to run the Miller test? (Larger number will be more accurate, but will take longer.  For best results, select a number between 2 and 10.)" << endl;
 		cin >> k;
-		
+		done = false;
 		while(!done)
 		{
 			num = rand() % max_num + min_num;
@@ -692,22 +731,82 @@ int main ()
 		mpz_init(mpzConvertQ);
 		
 		mpz_set_ui(mpzConvertP, p);
-		mpz_set_ui(mpzConvertQ, q);
+		mpz_set_ui(mpzConvertQ, q);*/
+
+//Calculate p
+		mpz_t l, mpzConvertP;
+		unsigned long seed;
+		seed = time(NULL);
+		// perform inits to create variable pointers with 0 values
+		mpz_init(mpzConvertP);
+		mpz_init(l);
 		
+		// calculate random number floor (at least 100 digits long)
+		mpz_ui_pow_ui(l, 10, 100);
+		// initialize the random number seed
+		gmp_randstate_t rstate;
+		// initialize state for a Mersenne Twister algorithm
+		gmp_randinit_mt(rstate);
+		// create the generatero seed for random number engine
+		gmp_randseed_ui(rstate, seed);
+		
+		do {
+			// generate number between 0 and 2^340 (~10^103 in base 2)
+			mpz_urandomb(mpzConvertP, rstate, 340);
+			// add base to generated number, should now be between 10^100 and 2*10^100
+			mpz_add(mpzConvertP, mpzConvertP, l);
+		
+		} while ((mpz_probab_prime_p(mpzConvertP, 25)) == 0);
+		cout << "p = ";
+		mpz_out_str(stdout,10,mpzConvertP);
+		cout << endl;
+
+//Calculate q
+		mpz_t m, mpzConvertQ;
+		//unsigned long seed;
+		seed = rand();
+		// perform inits to create variable pointers with 0 values
+		mpz_init(mpzConvertQ);
+		mpz_init(m);
+		
+		// calculate random number floor (at least 100 digits long)
+		mpz_ui_pow_ui(m, 10, 100);
+		// initialize the random number seed
+		//gmp_randstate_t rstate;
+		// initialize state for a Mersenne Twister algorithm
+		gmp_randinit_mt(rstate);
+		// create the generatero seed for random number engine
+		gmp_randseed_ui(rstate, seed);
+		
+		do {
+			// generate number between 0 and 2^340 (~10^103 in base 2)
+			mpz_urandomb(mpzConvertQ, rstate, 340);
+			// add base to generated number, should now be between 10^100 and 2*10^100
+			mpz_add(mpzConvertQ, mpzConvertQ, m);
+		
+		} while ((mpz_probab_prime_p(mpzConvertQ, 25)) == 0);
+		cout << "q = ";
+		mpz_out_str(stdout,10,mpzConvertQ);
+		cout << endl;
+
 		mpz_t mpzN;
 		mpz_t mpzTotient;
+		mpz_t mpzPMinus;
+		mpz_t mpzQMinus;
 		mpz_init(mpzN);
 		mpz_init(mpzTotient);
+		mpz_init(mpzPMinus);
+		mpz_init(mpzQMinus);
 		
 		mpz_mul(mpzN, mpzConvertP, mpzConvertQ);
 		
-		mpz_sub_ui(mpzConvertP, mpzConvertP, 1);
-		mpz_sub_ui(mpzConvertQ, mpzConvertQ, 1);
+		mpz_sub_ui(mpzPMinus, mpzConvertP, 1);
+		mpz_sub_ui(mpzQMinus, mpzConvertQ, 1);
 		
-		mpz_mul(mpzTotient, mpzConvertP, mpzConvertQ);
+		mpz_mul(mpzTotient, mpzPMinus, mpzQMinus);
 		
-		mpz_set_ui(mpzConvertP, p);
-		mpz_set_ui(mpzConvertQ, q);
+		//mpz_add_ui(mpzConvertP, mpzConvertP, 1);
+		//mpz_add_ui(mpzConvertQ, mpzConvertQ, 1);
 		
 		
 		
@@ -719,8 +818,8 @@ int main ()
 		mpz_t mpzE;
 		mpz_init(mpzE);
 		
-		mpz_set_ui(mpzE, 2);
-		//e = 2;
+		mpz_set_ui(mpzE, 65537);
+		/*//e = 2;
 		mpz_t mpzGcd;
 		mpz_init(mpzGcd);
 		
@@ -729,7 +828,7 @@ int main ()
 		{
 			mpz_add_ui(mpzE, mpzE, 1);
 			mpz_gcd(mpzGcd, mpzE, mpzTotient);
-		}
+		}*/
 		
 		cout << "e = ";
 		mpz_out_str(stdout, 10, mpzE);
@@ -744,16 +843,27 @@ int main ()
 		//cout << "e=" << e << endl;
 		mpz_t mpzD;
 		mpz_init(mpzD);
+ 
+		//mpz_invert(mpzD, mpzE, mpzTotient);
 		
-		mpz_fdiv_q(mpzD, mpzTotient, mpzE);
+		//mpz_fdiv_q(mpzD, mpzTotient, mpzE);
 		
 		mpz_t mpzCalcMod;
 		mpz_t mpzMulED;
 		
 		mpz_init(mpzCalcMod);
 		mpz_init(mpzMulED);
+
+//!!MANUALLY SET THIS FOR TESTING SMALL NUMBERS!!!
+
+		//mpz_set_ui(mpzConvertP, 167);
+		//mpz_set_ui(mpzConvertQ, 307);
+		//mpz_set_ui(mpzN, 51269);
+		//mpz_set_ui(mpzTotient, 50796);
+		//mpz_set_ui(mpzE, 5);
+		mpz_invert(mpzD, mpzE, mpzTotient);
 		
-		mpz_mul(mpzMulED, mpzE, mpzD);
+		/*mpz_mul(mpzMulED, mpzE, mpzD);
 		mpz_mod(mpzCalcMod, mpzMulED, mpzTotient);
 		
 		while(mpz_cmp_ui(mpzCalcMod, 1) != 0)
@@ -761,7 +871,7 @@ int main ()
 			mpz_add_ui(mpzD, mpzD, 1);
 			mpz_mul(mpzMulED, mpzE, mpzD);
 			mpz_mod(mpzCalcMod, mpzMulED, mpzTotient);
-		}
+		}*/
 		
 		cout << "d = ";
 		mpz_out_str(stdout, 10, mpzD);
@@ -773,8 +883,17 @@ int main ()
 			//d++;
 		//}
 		//cout << "d=" << d << endl;
-		
-		encrypt(p, q, mpzE, numberConversion, 30, out_file);
+
+		encrypt(mpzConvertP, mpzConvertQ, mpzE, numberConversion, 30, out_file);
+
+		cout << "For decryption:  " << endl;
+		cout << "n = ";
+		mpz_out_str(stdout, 10, mpzN);
+		cout << endl;
+		cout << "d = ";
+		mpz_out_str(stdout, 10, mpzD);
+		cout << endl;
+
 		out_file.close();
 		string line;
 		ifstream file("output.txt");
@@ -827,3 +946,5 @@ int main ()
 	return 0;
 	
 }
+
+
